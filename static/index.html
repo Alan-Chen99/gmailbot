@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>API Template</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+    <p>Welcome to the python API template! This text is from <code>static/index.html</code></p>
+    <p>You can require API key in the <code>Authorization</code> header on any route in one line of code.</p>
+    <p>Keys use randomization and hashing to be secure while avoiding having to store every API key. This allows this template to be used in a public repl easily. </p>
+    <p>You can also easily ratelimit your endpoints to avoid overload. </p>
+    <h3>API endpoints</h3>
+    <code>/api/weekday</code>
+    <p>Tells you the current weekday. <a id="run-test" style="cursor: pointer;">test this endpoint!</a></p>
+    <a href="/gen_key.html">Generate an API key here</a>
+    <script>
+        // when the button is clicked...
+        document.getElementById('run-test').addEventListener('click', function() {
+            var key = prompt("Enter API key: ");
+            if (!key) return;
+            // make an API request
+            fetch('/api/weekday', {
+                headers: {
+                    'Authorization': key
+                }
+            }).then(res => res.json())
+                .then(json => {
+                    console.log("API response:", json);
+                    if (json.error) {
+                        alert("API reported error: " + json.error);
+                    } else if (json.weekday) {
+                        alert("The current weekday is: " + json.weekday);
+                    } else {
+                        alert("The API returned an invalid weekday. ");
+                    }
+                });
+        });
+    </script>
+  </body>
+</html>

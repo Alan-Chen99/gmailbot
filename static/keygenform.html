@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>API Template</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
+  </head>
+  <body>
+    <h1>API Key Generator</h1>
+    <form method="POST" action="/gen_key" id="keygenform">
+      <p>Enter the value of <code>KEY_GEN_SECRET</code> in the <code>.env</code> file. 
+      In the demo version this is <code>asdf</code>.</p>
+      <input type="password" name="secret" placeholder="Enter password" style="width: 300px;"/>
+      <button type="submit" form="keygenform">Generate API key</button>
+    </form>
+  </body>
+</html>
