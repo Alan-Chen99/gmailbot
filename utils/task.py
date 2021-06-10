@@ -23,6 +23,11 @@ sync_exempt=syncexempt()
 
 def addtask(coru):
 	global sync_ensure,sync_exempt
+	tmp=asyncio.get_event_loop()
 	if sync_ensure.lock>0 and sync_exempt.lock==0:
 		raise RuntimeError('trying to schedual async operations in sync_ensure')
-	return asyncio.create_task(coru)
+	return tmp.create_task(coru)
+
+def runforever():
+	tmp=asyncio.get_event_loop()
+	tmp.run_forever()

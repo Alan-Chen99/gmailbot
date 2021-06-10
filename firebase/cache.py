@@ -209,6 +209,7 @@ def modifyval(curnode,newval):
 				if cache[parentpath][1] is not None:
 					break
 				#else: if x in a hidden cached child of a cached node with value None
+
 		depth=0
 		if modifydepth>0:
 			for x in curnode.ancestorswithself():
@@ -220,7 +221,7 @@ def modifyval(curnode,newval):
 			assert(childmodify.parent is modifynode)
 		else:
 			childmodify=curnode
-		
+
 		for x in childmodify.subtree():
 			childpath=x.path
 			if childpath in nodeholder:
@@ -237,7 +238,7 @@ def modifyval(curnode,newval):
 						unmark_inuse(childpath)
 					if childpath in loading:
 						loading[childpath][1].set()
-	
+
 		for childnode,childval in changesfromdict(childmodify,newval):
 			childpath=childnode.path
 			mark_inuse(childpath)#needs to do this for all nodes other than childmodify since direct parent changed
@@ -270,8 +271,10 @@ def modifyval(curnode,newval):
 					pending[modifynode_path]=cache[modifynode_path][1].copy()
 			else:
 				cache[modifynode_path]=(None,{childmodify.key()})
+				if modifynode_path not in pending:
+					mark_inuse(modifynode_path)
 				pending[modifynode_path]={childmodify.key()}
-		
+
 		assert(curnode.path in pending)
 		assert(curnode.path in inuse)
 		return sync_accesser.createsync(curnode)

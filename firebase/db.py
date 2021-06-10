@@ -18,6 +18,8 @@ class asyncnode:
 	def __await__(self):
 		return self.create_syncnode().__await__()
 
+	async def __call__(self):
+		return (await self)()
 
 class syncnode:
 	def __init__(self,obj:node,access:cache.sync_accesser):

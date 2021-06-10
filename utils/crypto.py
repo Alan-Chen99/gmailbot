@@ -1,22 +1,27 @@
-'''
-import uuid
+import os
+import base64
+from passlib import pwd
+from passlib.hash import sha512_crypt
+#import hmac
 
-def getuuid():#128 bit uuid
-	return uuid.UUID(int=uuid.uuid1().int^uuid.uuid4().int).hex
 
-import hashlib
 
-def hash(string):#128 bit hash
-	return hashlib.sha256(string.encode('utf-8')).hexdigest()[:32]
+adminpwdhash=os.getenv('adminpwdhash')
 
-#TODO: make those better
+discord_user_pwd_hash=os.getenv('discord_user_pwd_hash')
 
-def hashmerge(uuid128,hash128):
-	return hash(uuid128+hash128)
-	#return hex(int(uuid128,16)^int(hash128,16))[2:]
 
-rdstr=hash('rdstr')
-def hashmergeint(uuid128,index):
-	return hash(uuid128+str(index)+rdstr)
-	#return hex(int(uuid128,16)^index)[2:]#does not work since collsion for index==0
-'''
+
+def tocode(s):
+	return base64.b16encode(s.encode()).decode()
+def fromcode(s):
+	return base64.b16decode(s.encode()).decode()
+
+def newpwd():
+	global webpwd
+	webpwd=pwd.genword(entropy=512)
+
+def gethash(key):
+	return tocode(sha512_crypt.hash(key,rounds=1000))
+def verhash(key,hash):
+	return sha512_crypt.verify(key,fromcode(hash))

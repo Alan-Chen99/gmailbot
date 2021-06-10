@@ -1,36 +1,42 @@
 import discord
 import re
-import database
-import utils
+import firebase
+
+import utils.timing
 import logging
 import io
+
+import reseter
 
 haveinitialized=False
 
 discord_default_vars=[]
-discord_vars_prefix='discord_'
+
+discordroot=firebase.init()['discord']
+#discord_vars_prefix='discord_'
 
 def adddefaultvar(var,default):
 	discord_default_vars.append((var,default))
 
-@database.onreset
+@reseter.onfullreset
 async def resetdiscordvars():
 	for x in discord_default_vars:
-		await database.setvar(discord_vars_prefix+x[0],{'default':x[1]})
+		discordroot[x[0]]<<{'default':x[1]}
 
-async def changevar(var,key,val):
-	var=discord_vars_prefix+var
-	havevar=await database.havevar(var)
-	if havevar:
-		curdict=await database.getvar(var)
-		curdict[str(key)]=val
-		await database.setvar(var,curdict)
-	else:
-		await database.setvar(var,{str(key):val})
+#async def changevar(var,key,val):
+#	discordroot[var][key]<<val
+	#var=discord_vars_prefix+var
+	#havevar=await database.havevar(var)
+	#if havevar:
+	#	curdict=await database.getvar(var)
+	#	curdict[str(key)]=val
+	#	await database.setvar(var,curdict)
+	#else:
+	#	await database.setvar(var,{str(key):val})
 
 async def resetdiscordvarsdefault():
 	for x in discord_default_vars:
-		await changevar(x[0],'default',x[1])
+		discordroot[x[0]]['default']<<x[1]
 
 alldiscordcommands=[]
 
@@ -45,12 +51,11 @@ def newvarlevel(level):
 	return newvarlevelinner
 
 async def getdiscordvar(message,var):
-	var=discord_vars_prefix+var
-	curlist=await database.getvar(var)
+	curlist=discordroot[var]
 	for x in alldiscordvarlevels:
 		tmp = str(await (x[1])(message))
-		if tmp in curlist:
-			return curlist[tmp]
+		if await curlist[tmp]() is not None:
+			return await curlist[tmp]()
 	assert(False)
 
 async def havelevel(level):
@@ -63,8 +68,8 @@ async def setdiscordvar(message,level,var,val):
 	for x in alldiscordvarlevels:
 		if x[0]==level:
 			tmp = str(await (x[1])(message))
-			if tmp!=None:
-				await changevar(var,tmp,val)
+			#if tmp!=None: #why was this here?
+			discordroot[var][tmp]<<val
 
 async def filefromstring(text,filename=None):
 	f = io.StringIO(str(text))
@@ -73,16 +78,17 @@ async def filefromstring(text,filename=None):
 	return discord.File(fp=f,filename=filename)
 
 async def sendloggingmessage(target,text,**kwargs):
-	loggers=await getdiscordvar(None,'logging')
-	#print(loggers)
-	logger=loggers.get(target)
-	if logger!=None:
-		loggingprefix=logger.get('prefix')
-		#if loggingprefix is not None:
-		text=loggingprefix+text
-		channelid=logger.get('channel')
-		#if channelid is not None:
-		await client.get_channel(channelid).send(text,**kwargs)
+	pass
+#	loggers=await getdiscordvar(None,'logging')
+#	#print(loggers)
+#	logger=loggers.get(target)
+#	if logger!=None:
+#		loggingprefix=logger.get('prefix')
+#		#if loggingprefix is not None:
+#		text=loggingprefix+text
+#		channelid=logger.get('channel')
+#		#if channelid is not None:
+#		await client.get_channel(channelid).send(text,**kwargs)
 
 
 def newcommand(func):#func, matches, requirements
@@ -240,7 +246,7 @@ def ondiscordready(func):
 @client.event
 async def on_ready():
 	global haveinitialized
-	await sendloggingmessage('info',f'i am initialized at {utils.timestringnow()}')
+	await sendloggingmessage('info',f'i am initialized at {utils.timing.timestringnow()}')
 	for x in ondiscordreadylist:
 		client.loop.create_task(x)
 	haveinitialized=True

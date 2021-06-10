@@ -6,18 +6,8 @@ import asyncio_throttle
 import base64
 from passlib import pwd
 from passlib.hash import sha512_crypt
-import hmac
-import datetime
-import pytz
-import traceback
+#import hmac
 
-
-def exceptiontest():
-	return 1/0
-
-def excpetiontostring(ex):
-	return "".join(traceback.TracebackException.from_exception(ex).format())
-	#return ''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__))
 
 
 adminpwdhash=os.getenv('adminpwdhash')
@@ -26,15 +16,6 @@ discord_user_pwd=os.getenv('discord_user_pwd')
 
 
 
-
-def timestringnow():
-	return datetime.datetime.now(tz=pytz.timezone("America/Chicago"))
-
-def loggingtimenow(*args):
-	#utc_dt = datetime.utc.localize(datetime.utcnow())
-	#my_tz = pytz.timezone("US/Eastern")
-	#converted = utc_dt.astimezone(my_tz)
-	return timestringnow().timetuple()
 
 
 

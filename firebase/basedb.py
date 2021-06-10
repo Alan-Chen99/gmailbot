@@ -22,7 +22,10 @@ def init():
 
 
 def basegetsync(path):
-	return root.child(path).get()
+	if path=='':
+		return root.get()
+	else:
+		return root.child(path).get()
 
 
 async def baseget(path):

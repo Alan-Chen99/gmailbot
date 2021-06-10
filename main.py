@@ -5,6 +5,34 @@
 #set up logging first
 
 #logging.basicConfig(level=logging.WARNING)
+import sys
+#TODO: change discord bot token
+import utils.task
+#import discordbot.bot.set_message_handler
+import discordbot.bot
+from discordbot.commands.manage import addcommand as insertdiscoredcommand
+
+
+import discordbot.commands.simple
+insertdiscoredcommand(discordbot.commands.simple.commands)
+
+import discordbot.commands.types
+insertdiscoredcommand(discordbot.commands.types.commands)
+
+import discordbot.commands.admin
+insertdiscoredcommand(discordbot.commands.admin.commands)
+
+
+
+#tmp=discordbot.bot.serial_command_group()
+#tmp.add()(discordbot.commands.simple.commands)
+#tmp.add()(discordbot.commands.execs.commands)
+
+utils.task.addtask(discordbot.bot.runbot())
+print('starting all the tasks')
+utils.task.runforever()
+sys.exit()
+
 
 from webserver import routes
 from webserver import app
@@ -17,8 +45,7 @@ from aiohttp import web
 import os
 
 
-import uvloop # speed
-#import backend # our backend code we will run
+#import uvloop # speed
 import utils
 
 import discordbot
@@ -34,6 +61,9 @@ import discordcommands
 import asyncio
 
 import logging
+
+
+
 
 
 async def sendservererror(log_entry):
@@ -161,6 +191,11 @@ async def discordlogger(req):
 
 
 async def startserver():
+	#TODO: delete those
+	firebaseroot=firebase.init()
+	firebaseroot<<None
+
+
 	runner = web.AppRunner(app)
 	await runner.setup()
 	site = web.TCPSite(runner, '0.0.0.0', 8080)
