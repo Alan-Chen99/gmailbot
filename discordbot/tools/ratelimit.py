@@ -30,3 +30,6 @@ def use(usage):
 			return func(commandtext,context)
 		return rstfunc
 	return internal
+
+
+usemessage=use(10)

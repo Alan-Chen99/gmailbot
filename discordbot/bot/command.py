@@ -76,6 +76,9 @@ def set_message_handler(handler):#should be a async func with (message,context) 
 	global message_handler
 	message_handler=handler
 
+def run_message_handler(commandtext,context):
+	if message_handler is not None:
+		return message_handler(commandtext,context)
 
 @client.event
 async def on_message(messageobj):

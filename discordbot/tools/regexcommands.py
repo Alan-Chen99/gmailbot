@@ -27,6 +27,10 @@ class regex_command_group(bot.serial_command_group):
 			return command
 		return newcommand_inner
 
+def regexcommand(func):
+	def internal(commandtext,context):
+		return func(context.loc.get(matchrst)(),context.glob.get(bot.message)())
+	return internal
 
 '''
 

@@ -115,7 +115,7 @@ async def botjson(content,message):
 	tmp=content['arg']
 	return json.dumps(tmp,indent=2)
 
-@makematcher('sendastest','arg')
+@makematcher('sendastest','arg')#TODO
 @newcommand
 async def botsendastest(content,message):
 	tmp=content['arg']
@@ -152,7 +152,7 @@ async def botrepeatalarm(content,message):
 		await asyncio.sleep(5)
 
 
-@makematcher('commands')
+@makematcher('commands')#TODO
 @newcommand
 async def botcommands(content,message):
 	ans=''
@@ -337,7 +337,7 @@ async def botset(content,message):
 	await discordbot.setdiscordvar(message,level,var,val)
 	return 'success!'
 
-@makematcher('setlogging','prefix',['type'])
+@makematcher('setlogging','prefix',['type'])#TODO
 @requirevar('admin')
 @newcommand
 async def botsetlogging(content,message):
@@ -354,7 +354,7 @@ async def botsetlogging(content,message):
 class testexception(Exception):
 	pass
 
-@makematcher('testexception')
+@makematcher('testexception')#TODO
 @requirevar('admin')
 @newcommand
 async def bottestexception(content,message):

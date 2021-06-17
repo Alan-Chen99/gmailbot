@@ -16,8 +16,8 @@ async def resetdiscordvars():
 		discordroot[x]<<{'default':y}
 
 async def resetdiscordvarsdefault():
-	for x in discord_default_vars:
-		discordroot[x[0]]['default']<<x[1]
+	for x,y in discord_default_vars.items():
+		discordroot[x]['default']<<y
 
 
 

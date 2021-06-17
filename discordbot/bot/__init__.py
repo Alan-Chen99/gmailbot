@@ -1,6 +1,7 @@
 from .bot import client
 from .bot import runbot
 from .bot import ondiscordready
+from .bot import haveinitialized
 
 from .command import serial_command_group
 from .command import command_failed_exception
@@ -13,5 +14,9 @@ from .command import contextclass
 
 from .command import message
 from .command import set_message_handler
+from .command import run_message_handler
 
 from .file import filefromstring
+
+from .stream import setstream
+from .stream import send

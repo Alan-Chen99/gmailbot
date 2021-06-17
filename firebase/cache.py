@@ -154,12 +154,13 @@ The tree is needed b/c, suppose that an node in in cache, then its parent is set
 '''
 conditions need to be maintained through a sequence of sync operations
 
-objects are invalidated if a parent of it is in cache?
+~~objects are invalidated if a parent of it is in cache?
 
 cache has object iff object is fully available locally
 
-pending has object or function iff object has been changed since
+pending has object or function iff ~~object has been changed since
 the last start of call to pushchanges
+--> a node or its parent has been changed directly. A node is allowed to be not in pending if only change to it is insertion of child.
 pending can only have a function if object cannot yet be obtained
 function represents changes after the last pushchanges call
 
@@ -175,7 +176,9 @@ event is set if object is set to during load
 1 time inuse if the immediate parent of a key is in cache
 
 if a node is pending but not in cache, then its pending status is ignored for its children since func changes are only allowed on leaves
+
 if a node is in pending and cache, then all child of it is in pending and cache
+
 if a node is in cache but not in pending, then all child of it is in cache (and can be in pending)
 
 should be in nodeholder if in any other var, 
@@ -216,6 +219,8 @@ def modifyval(curnode,newval):
 				if depth>=modifydepth-1:
 					childmodify=x
 					break
+				if x.path in cache:
+					assert(cache[x.path][1] is None)
 				newval={x.key():newval}
 				depth+=1
 			assert(childmodify.parent is modifynode)
@@ -260,15 +265,16 @@ def modifyval(curnode,newval):
 		assert(childmodify.path in inuse)#since in pending
 
 		if modifydepth>0:
+			assert(modifynode.path!=curnode.path)
 			modifynode_path=modifynode.path
 			mark_inuse(childmodify.path)
 			if (modifynode_path in cache) and (type(cache[modifynode_path][1]) is set):
 				cache[modifynode_path][1].add(childmodify.key())
 				if modifynode_path in pending:
 					pending[modifynode_path].add(childmodify.key())
-				else:
-					mark_inuse(modifynode_path)
-					pending[modifynode_path]=cache[modifynode_path][1].copy()
+				#else:
+				#	mark_inuse(modifynode_path)
+				#	pending[modifynode_path]=cache[modifynode_path][1].copy()
 			else:
 				cache[modifynode_path]=(None,{childmodify.key()})
 				if modifynode_path not in pending:

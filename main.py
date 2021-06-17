@@ -3,15 +3,20 @@
 
 
 #set up logging first
-
-#logging.basicConfig(level=logging.WARNING)
+import logging
+import utils.timing
+logging.basicConfig(
+	level=logging.INFO,
+	format="%(asctime)s [%(levelname)s] %(message)s",
+)
+logging.Formatter.converter = utils.timing.loggingtimenow
+#?^
 import sys
 #TODO: change discord bot token
 import utils.task
 #import discordbot.bot.set_message_handler
 import discordbot.bot
 from discordbot.commands.manage import addcommand as insertdiscoredcommand
-
 
 import discordbot.commands.simple
 insertdiscoredcommand(discordbot.commands.simple.commands)
@@ -22,13 +27,25 @@ insertdiscoredcommand(discordbot.commands.types.commands)
 import discordbot.commands.admin
 insertdiscoredcommand(discordbot.commands.admin.commands)
 
+import discordbot.commands.execs
+insertdiscoredcommand(discordbot.commands.execs.commands)
+
+import discordbot.commands.gmail
+insertdiscoredcommand(discordbot.commands.gmail.commands)
 
 
-#tmp=discordbot.bot.serial_command_group()
-#tmp.add()(discordbot.commands.simple.commands)
-#tmp.add()(discordbot.commands.execs.commands)
+import loggingsetup
+loggingsetup.setup()
+
+import webserver
+#utils.task.addtask(discordbot.bot.send('error','hello before init'))
 
 utils.task.addtask(discordbot.bot.runbot())
+utils.task.addtask(webserver.start())
+
+import gmail.bot
+utils.task.addtask(gmail.bot.initgmail())
+
 print('starting all the tasks')
 utils.task.runforever()
 sys.exit()

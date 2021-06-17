@@ -1,5 +1,5 @@
 import discordbot.bot as bot
-#from discordbot.tools import ratelimit
+from discordbot.tools import ratelimit
 #from discordbot.tools import context as ctools
 from  discordbot.tools import standardcommands
 import utils.exceptions
@@ -13,17 +13,19 @@ newcommand=standardcommands.standardcommand
 
 
 @makematcher('file','arg')
+@ratelimit.usemessage
 @newcommand
 async def botfile(content,message):
 	await message.reply(file=await bot.filefromstring(content['arg']))
 	return None
 
 @makematcher('auto','arg')
+@ratelimit.usemessage
 @newcommand
 async def botauto(content,message):
 	tmp=content['arg']
 	if tmp==None:
-		return 'output is None'
+		tmp='output is None'
 	if isinstance(tmp, Exception):
 		tmp=utils.exceptions.excpetiontostring(tmp)
 	elif isinstance(tmp, (str,int,float)):
@@ -39,17 +41,10 @@ async def botauto(content,message):
 	
 
 
-#@makematcher('content','arg')
+#@makematcher('content','arg')#same as str
 #@newcommand
 #async def botcontent(content,message):
 #	return content
-
-@makematcher('send','arg')
-@newcommand
-async def botsend(content,message):
-	tmp=content.get('arg')
-	await message.channel.send(str(tmp))
-	return tmp
 
 @makematcher('str','arg')
 @newcommand
@@ -75,9 +70,36 @@ async def botbool(content,message):
 	if tmp=='False':
 		return False
 	return f'{repr(tmp)} cannot be converted to bool'
+
+@makematcher('none')#equivalent to pass
+@newcommand
+async def botnone(content,message):
+	return None
 	
+@makematcher('silence','content')
+@newcommand
+async def botsilence(content,message):
+	pass
+
 @makematcher('json','arg')
 @newcommand
 async def botjson(content,message):
 	tmp=content['arg']
 	return json.dumps(tmp,indent=2)
+
+@makematcher('jsonload','arg')
+@newcommand
+async def botjsonload(content,message):
+	tmp=content['arg']
+	return json.loads(tmp)
+
+@makematcher('code','content')
+@newcommand
+async def botcode(content,message):
+	arr=str(content['content']).split('```')
+	return '```\n'+('\u200b`\u200b`\u200b`').join(arr)+'\n```'
+	
+@makematcher('repr','content')
+@newcommand
+async def botrepr(content,message):
+	return repr(content['content'])

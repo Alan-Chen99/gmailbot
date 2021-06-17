@@ -1,6 +1,6 @@
 from discordbot import bot
 from discordbot.tools import regexcommands
-from discordbot.commands.manage import commands as commandsall
+#from discordbot.commands.manage import commands as commandsall
 
 
 class args(bot.contextbase):
@@ -11,9 +11,17 @@ class args(bot.contextbase):
 
 
 commandcall='__makematcher_command'
+
+childcaller=None
+def setchildcaller(func):
+	global childcaller
+	childcaller=func
+
 class standard_command_group(regexcommands.regex_command_group):
 
-	def add(self,prefix,strarg=None,opts=[]):
+	def add(self,prefix,strarg=None,opts=[],commandexecutor=None):
+		if commandexecutor is None:
+			commandexecutor=childcaller
 		optstr=''.join([fr'\.(?P<{x}>\S*?)' for x in opts])
 		argstr='$'
 		if strarg!=None:
@@ -28,7 +36,7 @@ class standard_command_group(regexcommands.regex_command_group):
 				context.loc.add(args(argsrst))
 				if strarg!=None:
 					if argsrst[commandcall]!=None:
-						argsrst[strarg]=await commandsall(argsrst[commandcall],context.child())
+						argsrst[strarg]=await commandexecutor(argsrst[commandcall],context.child())
 					argsrst.pop(commandcall)
 				return await command(commandtext,context)
 
