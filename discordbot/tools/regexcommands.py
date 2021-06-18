@@ -2,35 +2,39 @@ from discordbot import bot
 import re
 
 
-class matchrst(bot.contextbase):
-	def __init__(self,group):
-		self.group=group
-	def __call__(self):
-		return self.group
+class matchrst:
+	pass
+	#def __init__(self,group):
+	#	self.group=group
+	#def __call__(self):
+	#	return self.group
+
+def match_regex_factory(commandregex):
+	async def match_regex(context:bot.Context):
+		mr=re.search(commandregex,context[bot.commandtext])
+		if mr:
+			groups=mr.groupdict()
+			context.loccreate(matchrst,groups)
+		else:
+			raise bot.invalid_command_exception()
+	return match_regex
+
+def regex(commandregex,hidden=False):#TODO: keep list of regexes
+	return bot.runbefore(match_regex_factory(commandregex))
+
 
 class regex_command_group(bot.serial_command_group):
-	def __init__(self):
-		super().__init__()
-		self.regexlist=[]
-
-	def add(self,commandregex):#TODO: update regexlist
+	def add(self,commandregex,hidden=False):
 		def newcommand_inner(command):
-			async def internal(commandtext,context):
-				mr=re.search(commandregex,commandtext)
-				if mr:
-					groups=mr.groupdict()
-					context.loc.add(matchrst(groups))
-					return await command(commandtext,context)
-				else:
-					raise bot.invalid_command_exception()
-			super(regex_command_group,self).add()(internal)
+			super(regex_command_group,self).add()(regex(commandregex,hidden)(command))
 			return command
 		return newcommand_inner
 
-def regexcommand(func):
-	def internal(commandtext,context):
-		return func(context.loc.get(matchrst)(),context.glob.get(bot.message)())
-	return internal
+
+#def regexcommand(func):
+#	def internal(context):
+#		return func(context[matchrst],context[bot.message])
+#	return internal
 
 '''
 

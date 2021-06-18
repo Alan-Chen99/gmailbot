@@ -1,12 +1,13 @@
 import logging
 import discordbot.bot
 import utils.task
+from discordbot import defaultstreams
 
 async def sendservererror(log_entry):
 	#print(log_entry)
 	try:
 		file=await discordbot.bot.filefromstring(log_entry,'exception.txt')
-		await discordbot.bot.send('error','**Server Error**',file=file)
+		await discordbot.bot.send(defaultstreams.error,'**Server Error**',file=file)
 	except Exception as e:
 		print(e)
 		print('due to the above exception, the following excpetion cannot be logged:')
@@ -20,8 +21,8 @@ class discordhandler(logging.Handler):
 			#raise Exception('testexcpetion')
 			#if discordbot.bot.haveinitialized():
 			utils.task.addtask(sendservererror(log_entry))
-			if not discordbot.bot.haveinitialized():
-				print(log_entry)
+			#if not discordbot.bot.haveinitialized():
+			#	print(log_entry)
 		except Exception as e:
 			print(e)
 			print('due to the above exception, the following excpetion cannot be logged:')

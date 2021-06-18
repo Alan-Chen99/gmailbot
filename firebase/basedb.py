@@ -22,6 +22,7 @@ def init():
 
 
 def basegetsync(path):
+	print(f'database getting {path}')
 	if path=='':
 		return root.get()
 	else:
@@ -40,6 +41,8 @@ async def baseget(path):
 #	return await baseget(path) is not None
 
 def baseupdatesync(dictobj):
+	for x in dictobj:
+		print(f'database setting {x}')
 	if '' in dictobj:
 		assert(len(dictobj)==1)
 		tmp=dictobj['']

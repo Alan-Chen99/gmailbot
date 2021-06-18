@@ -12,12 +12,10 @@ def adddefaultvar(var,defaultvalue):
 
 @reseter.onfullreset
 async def resetdiscordvars():
-	for x,y in discord_default_vars.items():
-		discordroot[x]<<{'default':y}
+	discordroot['default']<<discord_default_vars
 
 async def resetdiscordvarsdefault():
-	for x,y in discord_default_vars.items():
-		discordroot[x]['default']<<y
+	discordroot['default']<<discord_default_vars
 
 
 
@@ -30,10 +28,9 @@ def newvarlevel(level):
 	return newvarlevelinner
 
 async def getdiscordvar(message,var):
-	curlist=discordroot[var]
 	for x in alldiscordvarlevels:
 		tmp = str(await (x[1])(message))
-		rst=await curlist[tmp]()
+		rst=await discordroot[tmp][var]()
 		if rst is not None:
 			return rst
 	return None
@@ -48,7 +45,7 @@ async def setdiscordvar(message,level,var,val):
 	for x in alldiscordvarlevels:
 		if x[0]==level:
 			tmp = str(await (x[1])(message))
-			if tmp!=None: #why was this here?
-				discordroot[var][tmp]<<val
+			if tmp!=None: #why was this here?#bc None == message does not actually have that level
+				discordroot[tmp][var]<<val
 				return None
 	assert(False)

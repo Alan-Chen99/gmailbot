@@ -1,16 +1,16 @@
-from discordbot.tools.context import getmessage
-from discordbot.vars import getdiscordvar
+#from discordbot.tools.context import getmessage
 from discordbot.bot import invalid_permission_exception
+import discordbot.bot
 
 class req:
 	def __init__(self,func):
 		#coro takes (commandtext,context) and returns bool
 		self.func=func
 	def __call__(self,callback):
-		async def internal(commandtext,context):
-			tmp=await self.func(commandtext,context)
+		async def internal(context):
+			tmp=await self.func(context)
 			if tmp is True:
-				return await callback(commandtext,context)
+				return await callback(context)
 			elif tmp is False:
 				raise invalid_permission_exception()
 			else:
@@ -18,14 +18,13 @@ class req:
 		return internal
 	#TODO: and, or, etc
 def invert(reqobj):
-	async def internal(commandtext,context):
-		return not (await reqobj.func(commandtext,context))
+	async def internal(context):
+		return not (await reqobj.func(context))
 	return req(internal)
 
 
 def varreq(varname,value=True):
-	async def internal(commandtext,context):
-		message=getmessage(context)
-		tmp=await getdiscordvar(message,varname)
+	async def internal(context):
+		tmp=await context[discordbot.bot.getvar](varname)
 		return tmp==value
 	return req(internal)

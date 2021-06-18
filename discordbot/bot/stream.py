@@ -2,6 +2,7 @@
 import firebase
 from .bot import client
 from .bot import ondiscordready
+from discordbot import defaultstreams
 
 import utils.timing
 
@@ -24,7 +25,7 @@ async def send(name,text,**kwargs):
 
 @ondiscordready
 async def sendinit():
-	await send('info',f'i am initialized at {utils.timing.timestringnow()}')
+	await send(defaultstreams.info,f'i am initialized at {utils.timing.timestringnow()}')
 
 #	loggers=await getdiscordvar(None,'logging')
 #	#print(loggers)
