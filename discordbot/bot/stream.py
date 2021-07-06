@@ -7,6 +7,7 @@ from discordbot import defaultstreams
 import utils.timing
 
 streamroot=firebase.init()['discordstream']
+catstreamroot=firebase.init()['discordstream_cat']
 
 
 def setstream(name,channel,config):
@@ -15,16 +16,42 @@ def setstream(name,channel,config):
 
 async def send(name,text,**kwargs):
 	await client.wait_until_ready()
-	channelid=await streamroot[name]['channel']()
+	stream=streamroot[name]
+	channelid=await stream['channel']()
 	if channelid is not None:
 		channel=client.get_channel(channelid)
-		loggingprefix=await streamroot[name]['config']['prefix']()
+		loggingprefix=await stream['config']['prefix']()
 		if loggingprefix is not None:
 			text=loggingprefix+text
-		await channel.send(text,**kwargs)
+		return await channel.send(text,**kwargs)
+	
+
+def setstream_cat(name,category,config):
+	catstreamroot[name]['category']<<category.id
+	catstreamroot[name]['config']<<config
+
+async def send_cat(name,channel,text,**kwargs):
+	await client.wait_until_ready()
+	stream=catstreamroot[name]
+	catid=await stream['category']()
+	if catid is not None:
+		channelname=channel
+		channelidvar=await stream['config']['channel'][channelname]
+		if channelidvar() is None:
+			category=client.get_channel(catid)
+			channel=await category.create_text_channel(channelname)
+			channelidvar<<channel.id
+		else:
+			channel=client.get_channel(channelidvar())
+		loggingprefix=await stream['config']['prefix']()
+		if loggingprefix is not None:
+			text=loggingprefix+text
+		return await channel.send(text,**kwargs)
+
+
 
 @ondiscordready
-async def sendinit():
+async def sendinit():#should this be in the file?
 	await send(defaultstreams.info,f'i am initialized at {utils.timing.timestringnow()}')
 
 #	loggers=await getdiscordvar(None,'logging')

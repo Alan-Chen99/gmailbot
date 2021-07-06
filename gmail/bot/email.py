@@ -1,6 +1,8 @@
 from . import creds
 from .vars import gmailvars
 from discordbot import bot as discord
+from discordbot import vars as discordvars
+from discordbot import defaultvars as discorddefaultvars
 
 import aiogoogle
 import aiohttp
@@ -41,6 +43,7 @@ import base64
 
 class email:
 	def __init__(self):
+		self.id=''
 		self.dto=''
 		self.rtpath=''
 		self.source=''
@@ -53,6 +56,7 @@ class email:
 		self.labels=[]
 	def getinfo(self):
 		return (
+			f'id: {self.id}\n'
 			f'labels: {repr(self.labels)}\n'
 			f'dto: {self.dto}\n'
 			f'rtpath: {self.rtpath}\n'
@@ -68,7 +72,7 @@ class email:
 def decode64(b64s):
 	return base64.urlsafe_b64decode(b64s).decode("utf-8")
 
-async def handlepart(part,mail):
+async def handlepart(part,mail):#TODO: some email might only have html in which this will return empty
 	if part['mimeType']=='multipart/alternative':
 		for x in part['parts']:
 			await handlepart(x,mail)
@@ -95,6 +99,7 @@ async def handlenewemail(messagemeta):
 		return None
 	mail=email()
 	mail.labels=mssg['labelIds']
+	mail.id=mssgid
 	for x in mssg['payload']['headers']:
 		if x['name']=='Delivered-To':
 			mail.dto=x['value']
@@ -129,27 +134,36 @@ async def handlenewemail(messagemeta):
 	#mail.toinfo=(await database.getvar('email_to_info'))[mail.gotfor]
 	#mail.frominfo=(await database.getvar('email_from_info'))[mail.source]
 
-	await discord.send(
+	#discordmsg=await discord.send(
+	#	'email',
+	#	mail.getinfo(),
+	#	file=await discord.filefromstring(mail.text)
+	#)
+
+	discordmsg=await discord.send_cat(
 		'email',
+		mail.gotfor,
 		mail.getinfo(),
 		file=await discord.filefromstring(mail.text)
 	)
+	await discordvars.setdiscordvar(discordmsg,discordvars.levels.message,discorddefaultvars.email_id,mssgid)
+	return mail
 	
-emaildiscordhandlers=[]
-def newhandler(handler):
-	emaildiscordhandlers.append(handler)
-	return handler
+#emaildiscordhandlers=[]
+#def newhandler(handler):
+#	emaildiscordhandlers.append(handler)
+#	return handler
 
-class conditionnotmet(Exception):
-	pass
+#class conditionnotmet(Exception):
+#	pass
 
-async def pushemail(mail):
-	for handler in emaildiscordhandlers:
-		try:
-			handler(mail)
-			return None
-		except conditionnotmet:
-			pass
+#async def pushemail(mail):
+#	for handler in emaildiscordhandlers:
+#		try:
+#			handler(mail)
+#			return None
+#		except conditionnotmet:
+#			pass
 
 #def email_to_handletype_only(handletype):
 #	def internal(handler):
@@ -191,6 +205,15 @@ async def getlastfull():
 	return await aioggl.as_user(  # the request is being sent here
 		gmail.users.messages.get(
 			userId='me',id=lastid
+		)
+	)
+
+async def getrawfromid(emailid):
+	aioggl=await creds.getaioggl
+	gmail=await creds.getgmail
+	return await aioggl.as_user(  # the request is being sent here
+		gmail.users.messages.get(
+			userId='me',id=emailid
 		)
 	)
 

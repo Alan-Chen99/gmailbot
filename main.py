@@ -1,3 +1,8 @@
+#TODO: check if first time running and if is then reset db
+
+#TODO: handle 2 pined error
+#TODO: log when logged into gmail
+
 #TODO: in database requests errors not sent (perhaps b/c it calls logging.error which uses async?)
 
 
@@ -24,30 +29,30 @@ from discordbot.commands.manage import addcommand as insertdiscoredcommand
 import discordbot.commands.simple
 insertdiscoredcommand(discordbot.commands.simple.commands)
 
-#import discordbot.commands.types
-#insertdiscoredcommand(discordbot.commands.types.commands)
+import discordbot.commands.types
+insertdiscoredcommand(discordbot.commands.types.commands)
 
 import discordbot.commands.admin
 insertdiscoredcommand(discordbot.commands.admin.commands)
 
-#import discordbot.commands.execs
-#insertdiscoredcommand(discordbot.commands.execs.commands)
+import discordbot.commands.execs
+insertdiscoredcommand(discordbot.commands.execs.commands)
 
-#import discordbot.commands.gmail
-#insertdiscoredcommand(discordbot.commands.gmail.commands)
+import discordbot.commands.gmail
+insertdiscoredcommand(discordbot.commands.gmail.commands)
 
 
 import loggingsetup
 loggingsetup.setup()
 
-#import webserver
+import webserver
 #utils.task.addtask(discordbot.bot.send('error','hello before init'))
 
 utils.task.addtask(discordbot.bot.runbot())
-#utils.task.addtask(webserver.start())
+utils.task.addtask(webserver.start())
 
-#import gmail.bot
-#utils.task.addtask(gmail.bot.initgmail())
+import gmail.bot
+utils.task.addtask(gmail.bot.initgmail())
 
 print('starting all the tasks')
 utils.task.runforever()

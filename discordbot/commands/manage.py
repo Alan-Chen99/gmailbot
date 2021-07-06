@@ -20,40 +20,46 @@ def addcommand(command):
 #@ratelimit.usemessage
 #def use_message_ratelimit(commandtext,context):
 #	pass
+standardcommands.setchildcaller(ratelimit.use(1)(full_commands_list))
 
 
 async def runall(context:bot.Context):
 	assert(type(context) is bot.Context)
-	message=context[bot.message]
-	ifnoselfcheck=await context[bot.getvar]('surpress_self_check')
-	
-	if message.author==bot.client.user and ifnoselfcheck is False:
-		raise bot.invalid_permission_exception()
 	
 	rst=await full_commands_list(context)
 	if rst is not None:
 		await messaging.reply(context)(rst)
 
-standardcommands.setchildcaller(ratelimit.use(1)(full_commands_list))
 
 
 #handle rate limits
 
 
-finalcommands=bot.serial_command_group()
+withratelimit=bot.serial_command_group()
 
-@finalcommands.add()
+@withratelimit.add()
 @requirements.varreq('admin')
 @ratelimit.setlimit(float('inf'))
 async def runasadmin(context):
 	return await runall(context)
 
-@finalcommands.add()
+@withratelimit.add()
 @requirements.invert(requirements.varreq('admin'))
 @ratelimit.setlimit(30)
 async def runwithratelimit(context):
 	return await runall(context)
 
 
+async def runwithselfcheck(context:bot.Context):
+	assert(type(context) is bot.Context)
+	message=context[bot.message]
+	
+	if message.author==bot.client.user:
+		ifnoselfcheck=await context[bot.getvar]('surpress_self_check')
+		if not ifnoselfcheck:
+			raise bot.invalid_permission_exception()
 
-bot.set_message_handler(finalcommands)
+	await withratelimit(context)
+
+
+bot.set_message_handler(runwithselfcheck)

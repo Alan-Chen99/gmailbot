@@ -29,3 +29,5 @@ from .file import filefromstring
 
 from .stream import setstream
 from .stream import send
+from .stream import setstream_cat
+from .stream import send_cat

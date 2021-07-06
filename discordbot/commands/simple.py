@@ -45,18 +45,6 @@ async def botsend(content,context):
 	return tmp
 
 
-'''#move to types
-@makematcher('second','arg')
-@newcommand
-async def botsecond(content,message):
-	try:
-		tmp=float(content['arg'])
-		delta = datetime.timedelta(seconds=tmp)
-		return delta
-	except ValueError:
-		return f'{repr(content["arg"])} cannot be converted to seconds'
-'''
-
 @makematcher('timer','arg')
 @ratelimit.usemessage
 @ratelimit.usemessage
