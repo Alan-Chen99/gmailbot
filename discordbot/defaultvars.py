@@ -13,3 +13,7 @@ adddefaultvar(prefix,'')#'alanbot.'
 
 surpress_self_check='surpress_self_check'
 adddefaultvar(surpress_self_check,False)
+
+
+email_id='email_id'
+adddefaultvar(email_id,None)

@@ -25,3 +25,7 @@ def gethash(key):
 	return tocode(sha512_crypt.hash(key,rounds=1000))
 def verhash(key,hash):
 	return sha512_crypt.verify(key,fromcode(hash))
+
+def getenv(name):
+	tmp=os.environ[name]
+	return fromcode(tmp)

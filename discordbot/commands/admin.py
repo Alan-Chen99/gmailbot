@@ -7,9 +7,10 @@ import utils.exceptions
 from discordbot.tools import standardcommands
 from discordbot.tools.requirements import varreq
 import firebase
-from firebase.cache import printdebug
+#from firebase.cache import printdebug
 import reseter
 
+import sys
 from discordbot import defaultvars
 
 commands=bot.serial_command_group()
@@ -28,11 +29,17 @@ makematcher=admincommands.add
 @bot.command(standardcommands.args,bot.message)
 async def botadminverify(content,message):
 	key=content['key']
-	if utils.crypto.verhash(key,utils.crypto.discord_user_pwd_hash):
+	if utils.crypto.verhash(key,utils.crypto.getenv('discord_user_pwd_hash')):
 		await vars.setdiscordvar(message,vars.levels.author,defaultvars.admin,True)
 		return 'admin permission added'
 	else:
 		return 'password incorrect'
+
+
+@makematcher('abort')
+@bot.command()
+async def botabort():
+	sys.exit(0)
 
 
 @makematcher('set','val',['level','var'])
@@ -46,6 +53,7 @@ async def botset(content,message):
 	val=content['val']
 	await vars.setdiscordvar(message,level,var,val)
 	return 'success!'
+	
 
 
 @makematcher('getdb')
@@ -54,10 +62,10 @@ async def botgetdb():
 	return await firebase.init()()
 
 
-@makematcher('debug')
-@bot.command()
-async def botdebug():
-	await printdebug()
+#@makematcher('debug')
+#@bot.command()
+#async def botdebug():
+#	await printdebug()
 
 @makematcher('print','content')
 @bot.command(standardcommands.args)
@@ -74,12 +82,12 @@ async def botget(message):
 		rst[x]=await vars.getdiscordvar(message,x)
 	return rst
 
-@makematcher('resetdb')#TODO: warn
-@bot.command(bot.message)
-async def botresetdb(message):
-	await reseter.fullreset()
-	await vars.setdiscordvar(message,vars.levels.author,defaultvars.admin,True)
-	return 'database reseted'
+#@makematcher('resetdb')#TODO: warn
+#@bot.command(bot.message)
+#async def botresetdb(message):
+#	await reseter.fullreset()
+#	await vars.setdiscordvar(message,vars.levels.author,defaultvars.admin,True)
+#	return 'database reseted'
 
 @makematcher('resetdefaults')
 @bot.command()
@@ -88,7 +96,7 @@ async def botresetdefaults():
 	return 'database default vars reseted'
 
 
-def execfromref_factory(giveadmin):
+def execfromref_factory(giveadmin,skipselfcheck):
 	async def execfromref(context):
 		message=context[bot.message]
 		
@@ -109,6 +117,8 @@ def execfromref_factory(giveadmin):
 				async def getvarfunc(varname):
 					if giveadmin and varname==defaultvars.admin:
 						return True
+					if skipselfcheck and varname==defaultvars.surpress_self_check:
+						return True
 					return await vars.getdiscordvar(refmsg,varname)
 				newcontext.globcreate(bot.getvar,getvarfunc)
 
@@ -123,23 +133,30 @@ def execfromref_factory(giveadmin):
 	return execfromref
 
 
-@makematcher('ref','content',commandexecutor=execfromref_factory(False))
+@makematcher('ref','content',commandexecutor=execfromref_factory(False,False))
 @bot.command(standardcommands.args)
 async def botref(content):
 	return content['content']
 
 
-@makematcher('refadmin','content',commandexecutor=execfromref_factory(True))
+@makematcher('refadmin','content',commandexecutor=execfromref_factory(True,True))
 @bot.command(standardcommands.args)
 async def botrefadmin(content):
 	return content['content']
 
 
-@makematcher('setlogging','prefix',['type'])#TODO
+@makematcher('setlogging','prefix',['type'])
 @bot.command(standardcommands.args,bot.message)
 async def botsetlogging(content,message):
 	bot.setstream(content['type'],message.channel,{'prefix':content['prefix']})
 	return 'success!'
+
+@makematcher('setlogging_cat','prefix',['type'])
+@bot.command(standardcommands.args,bot.message)
+async def botsetlogging_cat(content,message):
+	bot.setstream_cat(content['type'],message.channel.category,{'prefix':content['prefix']})
+	return 'success!'
+	
 
 
 

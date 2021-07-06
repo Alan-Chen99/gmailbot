@@ -1,28 +1,49 @@
 import discordbot.bot as bot
-from discordbot.tools import ratelimit
+#from discordbot.tools import ratelimit
 #from discordbot.tools import context as ctools
 from  discordbot.tools import standardcommands
+from  discordbot.tools import messaging
 import utils.exceptions
 
 import json
+import pprint
+import datetime
 
 commands=standardcommands.standard_command_group()
 makematcher=commands.add
-newcommand=standardcommands.standardcommand
+#newcommand=standardcommands.standardcommand
 
 
 
 @makematcher('file','arg')
-@ratelimit.usemessage
-@newcommand
-async def botfile(content,message):
-	await message.reply(file=await bot.filefromstring(content['arg']))
+@bot.command(standardcommands.args,bot.contextall)
+async def botfile(content,context):
+	await messaging.reply(context)(file=await bot.filefromstring(content['arg']))
 	return None
 
 @makematcher('auto','arg')
-@ratelimit.usemessage
-@newcommand
-async def botauto(content,message):
+@bot.command(standardcommands.args,bot.contextall)
+async def botauto(content,context):
+	tmp=content['arg']
+	if tmp==None:
+		tmp='output is None'
+	elif isinstance(tmp, Exception):
+		tmp=utils.exceptions.excpetiontostring(tmp)
+	elif type(tmp) is not str:
+		try:
+			tmp=json.dumps(tmp,indent=2)
+		except (TypeError, OverflowError):
+			tmp=pprint.pformat(tmp)
+	
+	assert(type(tmp) is str)
+	await messaging.reply(context)(file=await bot.filefromstring(tmp))
+	return None
+
+
+'''
+@makematcher('autoold','arg')
+@bot.command(standardcommands.args,bot.contextall)
+async def botautoold(content,context):
 	tmp=content['arg']
 	if tmp==None:
 		tmp='output is None'
@@ -36,9 +57,9 @@ async def botauto(content,message):
 		except (TypeError, OverflowError):
 			tmp=str(tmp)
 
-	await message.reply(file=await bot.filefromstring(tmp))
+	await messaging.reply(context)(file=await bot.filefromstring(tmp))
 	return None
-	
+'''
 
 
 #@makematcher('content','arg')#same as str
@@ -47,14 +68,14 @@ async def botauto(content,message):
 #	return content
 
 @makematcher('str','arg')
-@newcommand
-async def botstr(content,message):
+@bot.command(standardcommands.args)
+async def botstr(content):
 	tmp=content.get('arg')
 	return str(tmp)
 	
 @makematcher('int','arg')
-@newcommand
-async def botint(content,message):
+@bot.command(standardcommands.args)
+async def botint(content):
 	try:
 		tmp=int(content['arg'])
 		return tmp
@@ -62,8 +83,8 @@ async def botint(content,message):
 		return f'{repr(content["arg"])} cannot be converted to int'
 
 @makematcher('bool','arg')
-@newcommand
-async def botbool(content,message):
+@bot.command(standardcommands.args)
+async def botbool(content):
 	tmp=content['arg']
 	if tmp=='True':
 		return True
@@ -71,35 +92,56 @@ async def botbool(content,message):
 		return False
 	return f'{repr(tmp)} cannot be converted to bool'
 
+@makematcher('second','arg')
+@bot.command(standardcommands.args)
+async def botsecond(content):
+	try:
+		tmp=float(content['arg'])
+		delta = datetime.timedelta(seconds=tmp)
+		return delta
+	except ValueError:
+		return f'{repr(content["arg"])} cannot be converted to seconds'
+
 @makematcher('none')#equivalent to pass
-@newcommand
-async def botnone(content,message):
+@bot.command()
+async def botnone():
 	return None
 	
 @makematcher('silence','content')
-@newcommand
-async def botsilence(content,message):
+@bot.command()
+async def botsilence():
 	pass
 
 @makematcher('json','arg')
-@newcommand
-async def botjson(content,message):
+@bot.command(standardcommands.args)
+async def botjson(content):
 	tmp=content['arg']
-	return json.dumps(tmp,indent=2)
+	try:
+		return json.dumps(tmp,indent=2)
+	except (TypeError, OverflowError):
+		return f'{repr(tmp)} is not json serializable'	
 
 @makematcher('jsonload','arg')
-@newcommand
-async def botjsonload(content,message):
+@bot.command(standardcommands.args)
+async def botjsonload(content):
 	tmp=content['arg']
-	return json.loads(tmp)
+	try:
+		return json.loads(tmp)
+	except:
+		return f'{repr(tmp)} is not valid json'
 
 @makematcher('code','content')
-@newcommand
-async def botcode(content,message):
+@bot.command(standardcommands.args)
+async def botcode(content):
 	arr=str(content['content']).split('```')
 	return '```\n'+('\u200b`\u200b`\u200b`').join(arr)+'\n```'
 	
 @makematcher('repr','content')
-@newcommand
-async def botrepr(content,message):
+@bot.command(standardcommands.args)
+async def botrepr(content):
 	return repr(content['content'])
+
+@makematcher('type','content')
+@bot.command(standardcommands.args)
+async def bottype(content):
+	return type(content['content'])

@@ -16,6 +16,7 @@ firebase-admin = "^5.0.0"
 consultor = "^0.2.0"
 discord = "^1.0.1"
 google-api-python-client = "^2.8.0"
+gmail = "^0.6.3"
 
 [tool.poetry.dev-dependencies]
 

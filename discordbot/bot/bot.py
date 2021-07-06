@@ -1,6 +1,6 @@
 import discord
 #import logging
-import os
+from utils import crypto
 
 from utils.task import addtask
 
@@ -29,4 +29,4 @@ async def on_ready():
 	
 
 async def runbot():
-	await client.start(os.getenv('discordtoken'))
+	await client.start(crypto.getenv('discordtoken'))
