@@ -1,4 +1,4 @@
-from __future__ import annotations
+#from __future__ import annotations
 import json
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -51,7 +51,7 @@ async def baseget(path:str):
 #async def basehave(path):
 #	return await baseget(path) is not None
 
-def baseupdatesync(dictobj:dict[str,nestedtype]):
+def baseupdatesync(dictobj):
 	if '' in dictobj:
 		assert(len(dictobj)==1)
 		tmp=dictobj['']
@@ -62,7 +62,7 @@ def baseupdatesync(dictobj:dict[str,nestedtype]):
 	else:
 		root.update(dictobj)
 
-async def baseupdate(dictobj:dict[str,nestedtype]):
+async def baseupdate(dictobj):
 	loop = asyncio.get_running_loop()
 	return await loop.run_in_executor(write_executor,baseupdatesync,dictobj)
 

@@ -1,4 +1,4 @@
-from __future__ import annotations
+#from __future__ import annotations
 from . import cache
 from .tree import root as rootraw
 from .tree import node

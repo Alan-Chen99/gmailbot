@@ -1,4 +1,4 @@
-from __future__ import annotations
+#from __future__ import annotations
 import asyncio
 
 
@@ -44,7 +44,7 @@ def datachanger_root(change:nestedtype):
 	global fulldata
 	fulldata=change
 
-def datachanger_child(dictobj:dict[str,nestedtype],key:str):
+def datachanger_child(dictobj,key:str):
 	obj_copy=dictobj
 	def internal(change:nestedtype):
 		obj_copy[key]=change

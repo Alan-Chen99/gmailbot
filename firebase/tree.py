@@ -1,4 +1,4 @@
-from __future__ import annotations
+#from __future__ import annotations
 
 import weakref
 from typing import Tuple, Union
@@ -9,7 +9,7 @@ from typing import NewType
 Path = NewType('Path', str)
 
 class node:
-	def __init__(self,path:str,parent:Union[node,None]):
+	def __init__(self,path:str,parent):
 		self.path:Path=Path(path)
 		self.parent:Union[node,None]=parent
 		self.child:weakref.WeakValueDictionary[str,node]=weakref.WeakValueDictionary()
@@ -20,14 +20,14 @@ class node:
 			obj=node(self.path+key+'/',self)
 			self.child[key]=obj
 		return obj
-	def subtree(self) -> Generator[node, None, None]:#from those that exists as node
+	def subtree(self):
 		yield self
 		for _,val in self.child.items():
 			yield from val.subtree()
 	def children(self):#from those that exists as node
 		for _,val in self.child.items():
 			yield from val.subtree()
-	def subtree_and_childset(self) -> Generator[Tuple[node,set[Path]], None, None]:
+	def subtree_and_childset(self):
 		childset:set[Path]=set()
 		for child in self.child.values():
 			yield from child.subtree_and_childset()
