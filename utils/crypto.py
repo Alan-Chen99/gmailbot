@@ -3,6 +3,9 @@ import base64
 from passlib import pwd
 from passlib.hash import sha512_crypt
 #import hmac
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 
