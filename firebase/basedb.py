@@ -41,7 +41,7 @@ def basegetsync(path:str)->nestedtype:
 
 
 async def baseget(path:str):
-	loop = asyncio.get_running_loop()
+	loop = asyncio.get_event_loop()
 	return await loop.run_in_executor(read_executor,basegetsync,path)
 	
 
@@ -63,7 +63,7 @@ def baseupdatesync(dictobj):
 		root.update(dictobj)
 
 async def baseupdate(dictobj):
-	loop = asyncio.get_running_loop()
+	loop = asyncio.get_event_loop()
 	return await loop.run_in_executor(write_executor,baseupdatesync,dictobj)
 
 
