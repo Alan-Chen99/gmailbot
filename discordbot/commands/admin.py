@@ -11,6 +11,8 @@ import firebase
 import reseter
 
 import sys
+import os
+import subprocess
 
 from discordbot import defaultvars
 
@@ -166,3 +168,16 @@ async def botsetlogging_cat(content,message):
 @bot.command()
 async def testexception():
 	return 1/0
+
+
+@makematcher('pid')
+@bot.command()
+async def getpid():
+	return os.getpid()
+
+
+@makematcher('restart')
+@bot.command()
+async def restart():
+	subprocess.Popen([sys.executable]+sys.argv)
+	sys.exit(0)
