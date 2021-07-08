@@ -11,6 +11,7 @@ import firebase
 import reseter
 
 import sys
+
 from discordbot import defaultvars
 
 commands=bot.serial_command_group()
