@@ -5,7 +5,10 @@ from discordbot.tools.requirements import varreq
 import utils.exceptions
 
 
+import subprocess
+import asyncio
 
+from discordbot.tools import messaging
 
 
 
@@ -75,3 +78,20 @@ async def botaexec(content,context):
 	return rst
 
 
+def shell_exec_sync(command):
+	process=subprocess.Popen(command, shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	return process.communicate()
+
+
+@addmatcher(r'^shell\s+(?P<arg>[\s\S]*)$')
+@addmatcher(r'^shell\s+`(?P<arg>[\s\S]*)`$')
+@addmatcher(r'^shell\s+```(?P<arg>[\s\S]*)```$')
+@bot.command(regexcommands.matchrst,bot.contextall)
+async def shell(content,context):
+	loop = asyncio.get_event_loop()
+	stdout, stderr=await loop.run_in_executor(None,shell_exec_sync,content['arg'])
+	stdout=stdout.decode("utf-8")
+	stderr=stderr.decode("utf-8")
+	if stderr:
+		await messaging.reply(context)(stderr)
+	return stdout

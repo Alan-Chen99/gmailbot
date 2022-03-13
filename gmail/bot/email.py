@@ -53,6 +53,7 @@ class email:
 		self.cc=''
 		self.text=''
 		self.gotfor=''
+		self.listid=''
 		self.labels=[]
 	def getinfo(self):
 		return (
@@ -65,6 +66,7 @@ class email:
 			f'subject: {self.subject}\n'
 			f'to: {self.to}\n'
 			f'cc: {self.cc}\n'
+			f'listid: {self.listid}\n'
 			#bcc?
 			f'for: {self.gotfor}\n'
 		)
@@ -115,13 +117,15 @@ async def handlenewemail(messagemeta):
 			mail.to=x['value']
 		if x['name']=='Cc':
 			mail.cc=x['value']
+		if x['name']=='List-ID':
+			mail.listid=x['value']
 		if x['name']=='Received':
 			rerst=re.findall(r'(?<=for <)[^\s@]+@[^\s@]+\.[^\s@]{2,}(?=>)', x['value'])
 			if len(rerst)>1:
 				logging.warning(f'{repr(x["value"])} contains more than 1 email')
 			else:
 				if len(rerst)==1:
-					mail.gotfor=rerst[0]
+					mail.gotfor=rerst[0].lower()
 			#not entirely sure if this works
 			#get oldest send for
 			#supposed to be ordered from newest to oldest
@@ -139,13 +143,36 @@ async def handlenewemail(messagemeta):
 	#	mail.getinfo(),
 	#	file=await discord.filefromstring(mail.text)
 	#)
-
-	discordmsg=await discord.send_cat(
-		'email',
-		mail.gotfor,
-		mail.getinfo(),
-		file=await discord.filefromstring(mail.text)
-	)
+	#print(f'listid{mail.listid}')
+	#print(mail.getinfo())
+	if mail.listid:
+		discordmsg=await discord.send_cat(
+			'email_lists',
+			mail.listid,
+			'info:',
+			file=await discord.filefromstring(mail.getinfo())
+		)
+		discordmsg=await discord.send_cat(
+			'email_lists',
+			mail.listid,
+			'content:',
+			file=await discord.filefromstring(mail.text)
+		)
+	else:
+		if not mail.gotfor:
+			mail.gotfor='empty_for'
+		discordmsg=await discord.send_cat(
+			'email',
+			mail.gotfor,
+			'info:',
+			file=await discord.filefromstring(mail.getinfo())
+		)
+		discordmsg=await discord.send_cat(
+			'email',
+			mail.gotfor,
+			'content:',
+			file=await discord.filefromstring(mail.text)
+		)
 	await discordvars.setdiscordvar(discordmsg,discordvars.levels.message,discorddefaultvars.email_id,mssgid)
 	return mail
 	

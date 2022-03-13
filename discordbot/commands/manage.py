@@ -4,6 +4,7 @@ from discordbot.tools import ratelimit
 from discordbot.tools import standardcommands
 from discordbot.tools import messaging
 
+import logging
 #TODO: change?
 import discordbot.defaultvars
 
@@ -53,13 +54,17 @@ async def runwithratelimit(context):
 async def runwithselfcheck(context:bot.Context):
 	assert(type(context) is bot.Context)
 	message=context[bot.message]
-	
+
 	if message.author==bot.client.user:
 		ifnoselfcheck=await context[bot.getvar]('surpress_self_check')
 		if not ifnoselfcheck:
 			raise bot.invalid_permission_exception()
-
-	await withratelimit(context)
+	prefix=await context[bot.getvar]('prefix')
+	if not context[bot.commandtext].startswith(prefix):
+		raise bot.command_failed_exception()
+	newchild=context.child({bot.commandtext: context[bot.commandtext][len(prefix):]})
+	await withratelimit(newchild)
+	#await withratelimit(context)
 
 
 bot.set_message_handler(runwithselfcheck)
